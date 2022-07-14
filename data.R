@@ -28,6 +28,7 @@ catch %>%
   geom_line(show.legend=FALSE) +
   geom_point()
 ggsave("data/catch_by_stock.png")
+
 catch %>%
   group_by(year) %>%
   summarise(total_capture=sum(capture)) %>%
@@ -60,7 +61,7 @@ ggsave("data/catch_relative.png")
 catch$taxa <- catch$stock
 
 ## Read effort data, add column to catch data
-effort <- read.taf("bootstrap/data/effortmodtowork.csv")
+effort <- read.taf("bootstrap/data/effort.csv")
 effort <- pivot_longer(effort, -Year, "stock", values_to="effort")
 names(effort) <- tolower(names(effort))
 catch_effort <- addEffort(catch, effort, stocks.combined)
@@ -86,8 +87,10 @@ addDriors<-function (stocks, priors, stocks.combined, shape_prior = 2, b_ref_typ
                                  catch = stocks$data[[i]]$capture, years = stocks$data[[i]]$year, 
                                  initial_state = priors$initial_state[p], initial_state_cv = priors$initial_state_cv[p], 
                                  b_ref_type = "k", 
-                                 terminal_state = priors$terminal_state[p], 
-                                 terminal_state_cv = priors$terminal_state_cv[p], 
+                                 k_prior=50000,
+                                 k_prior_cv = 0.45,
+                                 #terminal_state = priors$terminal_state[p], 
+                                 #terminal_state_cv = priors$terminal_state_cv[p], 
                                  effort = stocks$data[[i]]$effort, 
                                  effort_years = na.omit(stocks$data[[i]])$year, growth_rate_prior = NA, 
                                  growth_rate_prior_cv = 0.2, ...)
@@ -97,7 +100,7 @@ addDriors<-function (stocks, priors, stocks.combined, shape_prior = 2, b_ref_typ
 }
 
 
-stocks <- addDriors(stocks, priors, stocks.combined)
+stocks <- addDriors(stocks, priors, stocks.combined=T)
 
 ## Plot driors for one stock
 plot_driors(stocks$driors[[2]])

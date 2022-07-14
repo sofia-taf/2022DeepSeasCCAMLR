@@ -1,0 +1,55 @@
+---
+title: "Area 37 Coastal"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+## Data and priors
+
+First thing I'm going to do is read in and process the data. These species names look weird, maybe a parsing error? Is this from the FAO or a local dataset? THe FishStat database usually has genus and species for some species even for regions like this.
+
+I've placed the data in a folder aclled data inside the repository I'm using to develop this.
+
+We now have a "tidy" and longer-format datadrame that is much more condusive to analysis. For example, let's plot some things:
+
+![Figure: Total catch.](data/catch_total.png)
+
+I'm also going to do a bit of data filtering here, for stocks that have at least 20 years of 0 catches.
+
+Going to change this a bit to filter early years without catches, making sure we get the species name read in corectly especially if we have 2 oceans with similar caught species (GOT and AND).
+
+```{r}
+input <- readRDS("data/input.rds")
+knitr::kable(input$data[[2]], caption="Catch and effort data for stock #2.")
+```
+
+![Figure: Data and priors for stock #2.](data/driors_2.png)
+
+## Analysis
+
+We use the `purrr` package here, along with `tibbles` to organize the results. This is a form of functional programming, where the goal is to write processes as functions and apply over data.
+
+First, make a nested data frame and then create a driors object for each stock, to ckeck LHP are read correctly.
+
+Now that we have our driors, we'll use them to fit our models, only using 10 for now for speeds sake, comment line 170 out for the full set.
+
+We can then include summaries of our results... Note, from Marcelo, need to check if model works better with randome effects on r; Red Mullet issues; jumps in catches we should run before running model (add criteria for filterimg data).
+
+And filter out any runs with gradients above 1e-3.
+
+## Results
+
+![Figure: Posteriors for stock #1.](report/posterior_1.png)
+
+![Figure: B over Bmsy time series.](report/bbmsy.png)
+
+![Figure: Stock status from SRAplus.](report/status_sraplus.png)
+
+![Figure: Stock status from SOFIA 2020.](report/status_sofia.png)
+
+![Figure: Stock status by year.](report/status_by_year.png)
