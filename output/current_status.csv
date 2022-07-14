@@ -1,0 +1,5 @@
+stock,taxa,variable,year,mean,sd,lower,upper,status
+Dissostichus mawsoni486,Dissostichus mawsoni486,b_div_bmsy,2020,2.35412225723781,0.0929826090079158,1.98461292563042,2.65827124846376,underfished
+Dissostichus mawsoni484,Dissostichus mawsoni484,b_div_bmsy,2020,0.732754612548171,1.87102088568204,0.0346188444996057,15.639514627788,overfished
+Dissostichus eleginoides483,Dissostichus eleginoides483,b_div_bmsy,2020,0.267019396119224,1.30284664485616,0.0465969424602053,2.26038416691654,overfished
+Dissostichus eleginoides484,Dissostichus eleginoides484,b_div_bmsy,2020,0.0929792919221171,2.20366989879881,0.00283651454927406,2.94718353106009,overfished
