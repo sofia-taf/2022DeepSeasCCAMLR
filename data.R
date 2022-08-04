@@ -14,8 +14,6 @@ library(tidyr)   # nest, pivot_longer
 
 mkdir("data")
 
-stocks.combined <- FALSE
-
 ## Read catch data, convert to tibble (long format)
 catch <- read.taf("bootstrap/data/catch.csv")
 catch$Total <- NULL  # not used, not a stock
@@ -64,7 +62,7 @@ catch$taxa <- catch$stock
 effort <- read.taf("bootstrap/data/effort.csv")
 effort <- pivot_longer(effort, -Year, "stock", values_to="effort")
 names(effort) <- tolower(names(effort))
-catch_effort <- addEffort(catch, effort, stocks.combined)
+catch_effort <- addEffort(catch, effort, same.effort=FALSE)
 
 ## Create nested tibble with 'data' column (catch and effort)
 stocks <- catch_effort %>%
@@ -74,33 +72,7 @@ stocks <- catch_effort %>%
 
 ## Read priors data, add as driors to stocks object
 priors <- read.taf("bootstrap/data/priors.csv")
-##Modified addDriors
-addDriors<-function (stocks, priors, stocks.combined, shape_prior = 2, b_ref_type = "k", 
-                     growth_rate_prior = NA, growth_rate_prior_cv = 0.2, ...) 
-{
-  driors <- list()
-  for (i in seq_len(nrow(stocks))) {
-    p <- if (stocks.combined) 
-      match("All", priors$stock)
-    else match(stocks$stock[i], priors$stock)
-    driors[[i]] <- format_driors(taxa = stocks$taxa[i], shape_prior = 2, 
-                                 catch = stocks$data[[i]]$capture, years = stocks$data[[i]]$year, 
-                                 initial_state = priors$initial_state[p], initial_state_cv = priors$initial_state_cv[p], 
-                                 b_ref_type = "k", 
-                                 k_prior=50000,
-                                 k_prior_cv = 0.45,
-                                 #terminal_state = priors$terminal_state[p], 
-                                 #terminal_state_cv = priors$terminal_state_cv[p], 
-                                 effort = stocks$data[[i]]$effort, 
-                                 effort_years = na.omit(stocks$data[[i]])$year, growth_rate_prior = NA, 
-                                 growth_rate_prior_cv = 0.2, ...)
-  }
-  stocks$driors <- driors
-  stocks
-}
-
-
-stocks <- addDriors(stocks, priors, stocks.combined=T)
+stocks <- addDriors(stocks, priors, same.priors=TRUE)
 
 ## Plot driors for one stock
 plot_driors(stocks$driors[[2]])
@@ -109,4 +81,3 @@ ggsave("data/driors_2.png")
 ## Export stocks and catch_effort
 saveRDS(stocks, "data/input.rds")
 write.taf(catch_effort, dir="data")
-
